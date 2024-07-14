@@ -4,7 +4,8 @@ import Navbar from "../Components/Navbar";
 function Converter() {
   const [file, setFile] = useState(null);
   const [converting, setConverting] = useState(false);
-  const [guide, setGuide] = useState(null);
+  const [guide, setGuide] = useState("");
+  const [editable, setEditable] = useState(false); // State for editable mode
   const fileInputRef = useRef(null);
 
   const handleFileChange = (e) => {
@@ -21,11 +22,43 @@ function Converter() {
       return;
     }
     setConverting(true);
-    // Simulating conversion process
-    setTimeout(() => {
+
+    // Simulating file upload and conversion process
+    // Replace with actual backend API call in your application
+    try {
+      // Simulating delay for conversion process
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+
+      // Simulating response from server
+      const result = {
+        guide: `Generated guide content for ${file.name}`,
+      };
+      setGuide(result.guide);
+    } catch (error) {
+      console.error("Error converting file:", error);
+    } finally {
       setConverting(false);
-      setGuide("1. Step One\n2. Step Two\n3. Step Three");
-    }, 2000);
+    }
+  };
+
+  const handleGuideChange = (e) => {
+    setGuide(e.target.value);
+  };
+
+  const handleEditableChange = (e) => {
+    setEditable(e.target.checked);
+  };
+
+  const handleCopyToClipboard = () => {
+    navigator.clipboard
+      .writeText(guide)
+      .then(() => {
+        alert("Guide content copied to clipboard!");
+      })
+      .catch((err) => {
+        console.error("Error copying to clipboard:", err);
+        alert("Failed to copy guide content to clipboard.");
+      });
   };
 
   return (
@@ -35,12 +68,34 @@ function Converter() {
         <h1 className="text-3xl font-bold mb-8 text-center">
           PPT to Guide Converter
         </h1>
-        {guide && (
-          <div className="bg-white shadow-md rounded px-8 pt-6 pb-8">
-            <h2 className="text-2xl font-bold mb-4">Generated Guide</h2>
-            <pre className="whitespace-pre-wrap">{guide}</pre>
-          </div>
-        )}
+        <div className="bg-white shadow-md rounded px-8 pt-6 pb-8">
+          <h2 className="text-2xl font-bold mb-4">
+            Generated Guide
+            <label className="ml-4">
+              <input
+                type="checkbox"
+                checked={editable}
+                onChange={handleEditableChange}
+                className="mr-2"
+              />
+              Editable
+            </label>
+          </h2>
+          <textarea
+            className="w-full h-64 p-2 border border-gray-300 rounded"
+            value={guide}
+            onChange={handleGuideChange}
+            readOnly={!editable} // Toggle read-only based on editable state
+            placeholder="Enter guide content..."
+          />
+          <button
+            onClick={handleCopyToClipboard}
+            className="mt-4 bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+            disabled={!guide.trim()} // Disable if guide content is empty
+          >
+            Copy to Clipboard
+          </button>
+        </div>
       </div>
       <div className="fixed right-0 top-1/2 transform -translate-y-1/2 bg-white p-4 rounded-l-lg shadow-lg">
         <input
