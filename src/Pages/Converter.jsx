@@ -1,5 +1,7 @@
 import React, { useState, useRef } from "react";
 import Navbar from "../Components/Navbar";
+import ReactQuill from "react-quill";
+import "react-quill/dist/quill.snow.css";
 
 function Converter() {
   const [file, setFile] = useState(null);
@@ -41,12 +43,22 @@ function Converter() {
     }
   };
 
-  const handleGuideChange = (e) => {
-    setGuide(e.target.value);
+  const handleGuideChange = (content) => {
+    setGuide(content);
   };
 
   const handleEditableChange = (e) => {
     setEditable(e.target.checked);
+  };
+
+  const modules = {
+    toolbar: [
+      [{ header: [1, 2, 3, 4, 5, 6, false] }],
+      ["bold", "italic", "underline", "strike"],
+      [{ list: "ordered" }, { list: "bullet" }],
+      ["link", "image"],
+      ["clean"],
+    ],
   };
 
   const handleCopyToClipboard = () => {
@@ -62,67 +74,90 @@ function Converter() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 relative">
+    <div className="flex flex-col min-h-screen bg-gray-100">
       <Navbar />
-      <div className="container mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold mb-8 text-center">
-          PPT to Guide Converter
-        </h1>
-        <div className="bg-white shadow-md rounded px-8 pt-6 pb-8">
-          <h2 className="text-2xl font-bold mb-4">
-            Generated Guide
-            <label className="ml-4">
-              <input
-                type="checkbox"
-                checked={editable}
-                onChange={handleEditableChange}
-                className="mr-2"
+      <div className="flex-grow overflow-auto">
+        <div className="container mx-auto px-4 py-8">
+          <h1 className="text-3xl font-bold mb-8 text-center">
+            PPT to Guide Converter
+          </h1>
+          <div className="bg-white shadow-md rounded px-8 pt-6 pb-8">
+            <div className="mb-6 flex items-center justify-between">
+              <div className="flex items-center">
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  onChange={handleFileChange}
+                  className="hidden"
+                  accept=".ppt,.pptx"
+                />
+                <button
+                  onClick={() => fileInputRef.current.click()}
+                  className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline flex items-center"
+                >
+                  <svg
+                    className="w-5 h-5 mr-2"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path d="M5.5 13a3.5 3.5 0 01-.369-6.98 4 4 0 117.753-1.977A4.5 4.5 0 1113.5 13H11V9.413l1.293 1.293a1 1 0 001.414-1.414l-3-3a1 1 0 00-1.414 0l-3 3a1 1 0 001.414 1.414L9 9.414V13H5.5z" />
+                    <path d="M9 13h2v5a1 1 0 11-2 0v-5z" />
+                  </svg>
+                  Upload PPT
+                </button>
+                {file && <span className="ml-4">{file.name}</span>}
+              </div>
+              {file && (
+                <button
+                  onClick={handleConvert}
+                  className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                  disabled={converting}
+                >
+                  {converting ? "Converting..." : "Convert"}
+                </button>
+              )}
+            </div>
+
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-2xl font-bold">Generated Guide</h2>
+              <div className="flex items-center">
+                <span className="mr-3 text-sm font-medium text-gray-900">
+                  Editable
+                </span>
+                <button
+                  onClick={() => setEditable(!editable)}
+                  className={`relative inline-flex items-center h-6 rounded-full w-11 focus:outline-none ${
+                    editable ? "bg-blue-600" : "bg-gray-200"
+                  }`}
+                >
+                  <span className="sr-only">Enable editing</span>
+                  <span
+                    className={`inline-block w-4 h-4 transform transition ease-in-out duration-200 bg-white rounded-full ${
+                      editable ? "translate-x-6" : "translate-x-1"
+                    }`}
+                  />
+                </button>
+              </div>
+            </div>
+            <div className="mb-6">
+              <ReactQuill
+                theme="snow"
+                value={guide}
+                onChange={handleGuideChange}
+                readOnly={!editable}
+                modules={modules}
+                placeholder="Enter guide content..."
               />
-              Editable
-            </label>
-          </h2>
-          <textarea
-            className="w-full h-64 p-2 border border-gray-300 rounded"
-            value={guide}
-            onChange={handleGuideChange}
-            readOnly={!editable} // Toggle read-only based on editable state
-            placeholder="Enter guide content..."
-          />
-          <button
-            onClick={handleCopyToClipboard}
-            className="mt-4 bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-            disabled={!guide.trim()} // Disable if guide content is empty
-          >
-            Copy to Clipboard
-          </button>
+            </div>
+            <button
+              onClick={handleCopyToClipboard}
+              className="mt-4 bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+              disabled={!guide.trim()}
+            >
+              Copy to Clipboard
+            </button>
+          </div>
         </div>
-      </div>
-      <div className="fixed right-0 top-1/2 transform -translate-y-1/2 bg-white p-4 rounded-l-lg shadow-lg">
-        <input
-          type="file"
-          ref={fileInputRef}
-          onChange={handleFileChange}
-          className="hidden"
-          accept=".ppt,.pptx"
-        />
-        <button onClick={handleIconClick} className="focus:outline-none">
-          <svg
-            className="w-10 h-10 text-blue-500 hover:text-blue-600"
-            fill="currentColor"
-            viewBox="0 0 20 20"
-          >
-            <path d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM6.293 6.707a1 1 0 010-1.414l3-3a1 1 0 011.414 0l3 3a1 1 0 01-1.414 1.414L11 5.414V13a1 1 0 11-2 0V5.414L7.707 6.707a1 1 0 01-1.414 0z" />
-          </svg>
-        </button>
-        {file && (
-          <button
-            onClick={handleConvert}
-            className="mt-4 bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-            disabled={converting}
-          >
-            {converting ? "Converting..." : "Convert"}
-          </button>
-        )}
       </div>
     </div>
   );
