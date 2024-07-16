@@ -1,5 +1,8 @@
 import React, { useState, useRef } from "react";
+import { useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import Navbar from "../Components/Navbar";
+import Footer from "../Components/Footer";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 
@@ -7,48 +10,91 @@ function Converter() {
   const [file, setFile] = useState(null);
   const [converting, setConverting] = useState(false);
   const [guide, setGuide] = useState("");
-  const [editable, setEditable] = useState(false); // State for editable mode
+  const [editable, setEditable] = useState(false);
   const fileInputRef = useRef(null);
+  const navigate = useNavigate();
+  const location = useLocation();
 
-  const handleFileChange = (e) => {
-    setFile(e.target.files[0]);
+  useEffect(() => {
+    if (location.state && location.state.selectedFile) {
+      setFile(location.state.selectedFile);
+    }
+  }, [location]);
+
+  const handleSelectFile = () => {
+    navigate("/uploads");
   };
-
-  const handleIconClick = () => {
-    fileInputRef.current.click();
+  const handleFileChange = (e) => {
+    const selectedFile = e.target.files[0];
+    if (
+      selectedFile &&
+      (selectedFile.name.endsWith(".ppt") ||
+        selectedFile.name.endsWith(".pptx"))
+    ) {
+      setFile(selectedFile);
+    } else {
+      alert("Please select a valid PPT or PPTX file.");
+      setFile(null);
+    }
   };
 
   const handleConvert = async () => {
     if (!file) {
-      alert("Please select a file first");
+      alert("Please upload a PPT/PPTX file first.");
       return;
     }
+
     setConverting(true);
 
-    // Simulating file upload and conversion process
-    // Replace with actual backend API call in your application
+    // Simulate file processing and guide generation
     try {
-      // Simulating delay for conversion process
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      await new Promise((resolve) => setTimeout(resolve, 2000)); // Simulate processing time
 
-      // Simulating response from server
-      const result = {
-        guide: `Generated guide content for ${file.name}`,
-      };
-      setGuide(result.guide);
+      // Generate a mock step-by-step guide
+      const mockGuide = generateMockGuide(file.name);
+      setGuide(mockGuide);
+      setEditable(true);
     } catch (error) {
       console.error("Error converting file:", error);
+      alert("An error occurred while converting the file.");
     } finally {
       setConverting(false);
     }
+  };
+
+  const generateMockGuide = (fileName) => {
+    return `
+      <h1>Step-by-Step Guide: ${fileName}</h1>
+      <h2>Introduction</h2>
+      <p>This guide is based on the presentation "${fileName}". Follow these steps to understand the key points of the presentation.</p>
+      <h2>Step 1: Overview</h2>
+      <p>Begin by reviewing the title slide and agenda to get an overview of the presentation's main topics.</p>
+      <h2>Step 2: Key Concepts</h2>
+      <p>Identify and list the main concepts introduced in the presentation. These are typically found in section headers or bold text.</p>
+      <h2>Step 3: Details and Examples</h2>
+      <p>For each key concept, note down supporting details and examples provided in the slides.</p>
+      <h2>Step 4: Visual Aids</h2>
+      <p>Pay attention to any charts, graphs, or images in the presentation. Describe their relevance to the topic.</p>
+      <h2>Step 5: Conclusion</h2>
+      <p>Summarize the main takeaways from the presentation and any call-to-action points mentioned.</p>
+      <h2>Next Steps</h2>
+      <p>Review this guide alongside the original presentation for a comprehensive understanding of the material.</p>
+    `;
   };
 
   const handleGuideChange = (content) => {
     setGuide(content);
   };
 
-  const handleEditableChange = (e) => {
-    setEditable(e.target.checked);
+  const handleCopyToClipboard = () => {
+    const textContent = guide.replace(/<[^>]+>/g, "\n").trim();
+    navigator.clipboard
+      .writeText(textContent)
+      .then(() => alert("Guide content copied to clipboard!"))
+      .catch((err) => {
+        console.error("Error copying to clipboard:", err);
+        alert("Failed to copy guide content to clipboard.");
+      });
   };
 
   const modules = {
@@ -61,38 +107,19 @@ function Converter() {
     ],
   };
 
-  const handleCopyToClipboard = () => {
-    navigator.clipboard
-      .writeText(guide)
-      .then(() => {
-        alert("Guide content copied to clipboard!");
-      })
-      .catch((err) => {
-        console.error("Error copying to clipboard:", err);
-        alert("Failed to copy guide content to clipboard.");
-      });
-  };
-
   return (
     <div className="flex flex-col min-h-screen bg-gray-100">
       <Navbar />
       <div className="flex-grow overflow-auto">
         <div className="container mx-auto px-4 py-8">
           <h1 className="text-3xl font-bold mb-8 text-center">
-            PPT to Guide Converter
+            PPT to Step-by-Step Guide Converter
           </h1>
           <div className="bg-white shadow-md rounded px-8 pt-6 pb-8">
             <div className="mb-6 flex items-center justify-between">
               <div className="flex items-center">
-                <input
-                  type="file"
-                  ref={fileInputRef}
-                  onChange={handleFileChange}
-                  className="hidden"
-                  accept=".ppt,.pptx"
-                />
                 <button
-                  onClick={() => fileInputRef.current.click()}
+                  onClick={handleSelectFile}
                   className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline flex items-center"
                 >
                   <svg
@@ -100,10 +127,13 @@ function Converter() {
                     fill="currentColor"
                     viewBox="0 0 20 20"
                   >
-                    <path d="M5.5 13a3.5 3.5 0 01-.369-6.98 4 4 0 117.753-1.977A4.5 4.5 0 1113.5 13H11V9.413l1.293 1.293a1 1 0 001.414-1.414l-3-3a1 1 0 00-1.414 0l-3 3a1 1 0 001.414 1.414L9 9.414V13H5.5z" />
-                    <path d="M9 13h2v5a1 1 0 11-2 0v-5z" />
+                    <path
+                      fillRule="evenodd"
+                      d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
+                      clipRule="evenodd"
+                    />
                   </svg>
-                  Upload PPT
+                  Select PPT
                 </button>
                 {file && <span className="ml-4">{file.name}</span>}
               </div>
@@ -113,13 +143,15 @@ function Converter() {
                   className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
                   disabled={converting}
                 >
-                  {converting ? "Converting..." : "Convert"}
+                  {converting ? "Converting..." : "Convert to Guide"}
                 </button>
               )}
             </div>
 
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-2xl font-bold">Generated Guide</h2>
+              <h2 className="text-2xl font-bold">
+                Generated Step-by-Step Guide
+              </h2>
               <div className="flex items-center">
                 <span className="mr-3 text-sm font-medium text-gray-900">
                   Editable
@@ -146,7 +178,7 @@ function Converter() {
                 onChange={handleGuideChange}
                 readOnly={!editable}
                 modules={modules}
-                placeholder="Enter guide content..."
+                placeholder="Your step-by-step guide will appear here after conversion..."
               />
             </div>
             <button
@@ -159,6 +191,7 @@ function Converter() {
           </div>
         </div>
       </div>
+      <Footer />
     </div>
   );
 }
