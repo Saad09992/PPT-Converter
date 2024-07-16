@@ -2,8 +2,10 @@ import { useSelector } from "react-redux";
 import { ProgressSpinner } from "primereact/progressspinner";
 import { Navigate, Outlet } from "react-router-dom";
 
-const PrivateRoutes = () => {
-  const { loading, token } = useSelector((state) => state.AuthReducer);
+const PrivateRoute = () => {
+  // const { loading, token } = useSelector((state) => state.AuthReducer);
+  const loading = true;
+  const token = true;
   return (
     <>
       {loading && (
@@ -17,4 +19,4 @@ const PrivateRoutes = () => {
   );
 };
 
-export default PrivateRoutes;
+export default PrivateRoute;

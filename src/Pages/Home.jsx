@@ -15,33 +15,45 @@ function Home() {
           Transform your presentations into detailed guides with just a few
           clicks.
         </p>
-        <Link to="/converter">
+        <Link to="/uploads">
           <button className="bg-green-500 text-white py-3 px-8 rounded-full text-lg hover:bg-green-600 transition duration-300">
             Get Started
           </button>
         </Link>
       </div>
-      <div className="container mx-auto py-16">
+      <div className="container mx-auto py-6">
         <h2 className="text-3xl font-bold text-gray-800 mb-8 text-center">
-          What We Offer
+          Steps to Convert Your PPT
         </h2>
         <div className="grid md:grid-cols-3 gap-8">
           <div className="bg-gray-300 p-6 rounded-lg shadow-md">
-            <h3 className="text-2xl font-semibold mb-4">Easy Upload</h3>
-            <p className="text-gray-600">
-              Upload your PPT files quickly and easily.
+            <h3 className="text-2xl font-semibold mb-4 text-center">
+              Uploading your PPT
+            </h3>
+            <p className="text-gray-600 text-center">
+              Navigate to the Uploads page and choose the file you want to
+              upload.
             </p>
           </div>
           <div className="bg-gray-300 p-6 rounded-lg shadow-md">
-            <h3 className="text-2xl font-semibold mb-4">Fast Conversion</h3>
-            <p className="text-gray-600">
-              Convert your presentations to guides in seconds.
+            <h3 className="text-2xl font-semibold mb-4 text-center">
+              Converting your PPT
+            </h3>
+            <p className="text-gray-600 text-center">
+              After uploading your file, you can convert it to a guide by
+              clicking the Convert button next to the uploaded files name. On
+              the converter page click Convert button to start the conversion
+              process.
             </p>
           </div>
-          <div className="bg-gray-300 p-6 rounded-lg shadow-md">
-            <h3 className="text-2xl font-semibold mb-4">High Quality</h3>
-            <p className="text-gray-600">
-              Get high-quality guides with clear formatting.
+          <div className="bg-gray-300 p-6 rounded-lg shadow-md ">
+            <h3 className="text-2xl font-semibold mb-4 text-center">
+              Downloading your Guides.
+            </h3>
+            <p className="text-gray-600 text-center">
+              After the conversion is complete, you can download the generated
+              guide by going to the Guides page and clicking the download button
+              and download the guide.
             </p>
           </div>
         </div>

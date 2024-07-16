@@ -38,7 +38,7 @@ function Guides() {
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Conversion Date
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Action
                 </th>
               </tr>
@@ -61,10 +61,17 @@ function Guides() {
                       {guide.conversionDate}
                     </div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <button className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
-                      Download
-                    </button>
+                  <td className="px-6 py-4 whitespace-nowrap text-center">
+                    <div className="flex flex-col items-center">
+                      <div className="flex space-x-2">
+                        <button className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
+                          View
+                        </button>
+                        <button className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
+                          Download
+                        </button>
+                      </div>
+                    </div>
                   </td>
                 </tr>
               ))}

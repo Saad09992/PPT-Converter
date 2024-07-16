@@ -1,6 +1,6 @@
 import React, { useState, useRef } from "react";
 import { useEffect } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, Link } from "react-router-dom";
 import Navbar from "../Components/Navbar";
 import Footer from "../Components/Footer";
 import ReactQuill from "react-quill";
@@ -11,6 +11,7 @@ function Converter() {
   const [converting, setConverting] = useState(false);
   const [guide, setGuide] = useState("");
   const [editable, setEditable] = useState(false);
+  const [isConverted, setIsConverted] = useState(false);
   const fileInputRef = useRef(null);
   const navigate = useNavigate();
   const location = useLocation();
@@ -24,6 +25,7 @@ function Converter() {
   const handleSelectFile = () => {
     navigate("/uploads");
   };
+
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
     if (
@@ -54,6 +56,7 @@ function Converter() {
       const mockGuide = generateMockGuide(file.name);
       setGuide(mockGuide);
       setEditable(true);
+      setIsConverted(true);
     } catch (error) {
       console.error("Error converting file:", error);
       alert("An error occurred while converting the file.");
@@ -137,13 +140,13 @@ function Converter() {
                 </button>
                 {file && <span className="ml-4">{file.name}</span>}
               </div>
-              {file && (
+              {file && !isConverted && (
                 <button
                   onClick={handleConvert}
                   className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
                   disabled={converting}
                 >
-                  {converting ? "Converting..." : "Convert to Guide"}
+                  {converting ? "Converting..." : "Convert"}
                 </button>
               )}
             </div>
@@ -181,13 +184,29 @@ function Converter() {
                 placeholder="Your step-by-step guide will appear here after conversion..."
               />
             </div>
-            <button
-              onClick={handleCopyToClipboard}
-              className="mt-4 bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-              disabled={!guide.trim()}
-            >
-              Copy to Clipboard
-            </button>
+            {isConverted && (
+              <>
+                <button
+                  onClick={handleCopyToClipboard}
+                  className="mt-4 bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                  disabled={!guide.trim()}
+                >
+                  Copy to Clipboard
+                </button>
+                <Link
+                  to="#"
+                  className="mt-4 ml-4 bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                  download
+                >
+                  Download Guide
+                </Link>
+              </>
+            )}
+            {isConverted && (
+              <button className="mt-4 ml-4 bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+                Save
+              </button>
+            )}
           </div>
         </div>
       </div>
