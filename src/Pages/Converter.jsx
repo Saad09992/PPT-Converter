@@ -5,6 +5,7 @@ import Navbar from "../Components/Navbar";
 import Footer from "../Components/Footer";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
+import Quill from "quill";
 
 function Converter() {
   const [file, setFile] = useState(null);
@@ -12,7 +13,8 @@ function Converter() {
   const [guide, setGuide] = useState("");
   const [editable, setEditable] = useState(false);
   const [isConverted, setIsConverted] = useState(false);
-  const fileInputRef = useRef(null);
+  const [showPopup, setShowPopup] = useState(false);
+  const quillRef = useRef(null);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -48,7 +50,6 @@ function Converter() {
 
     setConverting(true);
 
-    // Simulate file processing and guide generation
     try {
       await new Promise((resolve) => setTimeout(resolve, 2000)); // Simulate processing time
 
@@ -103,12 +104,55 @@ function Converter() {
   const modules = {
     toolbar: [
       [{ header: [1, 2, 3, 4, 5, 6, false] }],
+      [{ font: [] }],
+      [{ size: ["small", false, "large", "huge"] }],
       ["bold", "italic", "underline", "strike"],
+      [{ color: [] }, { background: [] }],
       [{ list: "ordered" }, { list: "bullet" }],
       ["link", "image"],
       ["clean"],
     ],
   };
+
+  const imageHandler = () => {
+    const input = document.createElement("input");
+    input.setAttribute("type", "file");
+    input.setAttribute("accept", "image/*");
+    input.click();
+
+    input.onchange = () => {
+      const file = input.files[0];
+      if (file) {
+        const reader = new FileReader();
+
+        reader.onload = () => {
+          const quill = quillRef.current.getEditor();
+          const range = quill.getSelection(true);
+          quill.insertEmbed(range.index, "image", reader.result);
+        };
+
+        reader.readAsDataURL(file);
+      }
+    };
+  };
+
+  const downloadPDF = () => {
+    console.log("Download as PDF");
+    setShowPopup(false);
+  };
+
+  const downloadHTML = () => {
+    console.log("Download as HTML");
+    setShowPopup(false);
+  };
+
+  useEffect(() => {
+    if (quillRef.current) {
+      const quill = quillRef.current.getEditor();
+      const toolbar = quill.getModule("toolbar");
+      toolbar.addHandler("image", imageHandler);
+    }
+  }, []);
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-100">
@@ -176,36 +220,74 @@ function Converter() {
             </div>
             <div className="mb-6">
               <ReactQuill
+                ref={quillRef}
                 theme="snow"
                 value={guide}
                 onChange={handleGuideChange}
                 readOnly={!editable}
                 modules={modules}
                 placeholder="Your step-by-step guide will appear here after conversion..."
+                className="h-72 mb-3"
               />
             </div>
             {isConverted && (
-              <>
+              <div>
                 <button
                   onClick={handleCopyToClipboard}
-                  className="mt-4 bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                  className="mt-8 bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
                   disabled={!guide.trim()}
                 >
                   Copy to Clipboard
                 </button>
-                <Link
-                  to="#"
+                <button
+                  onClick={() => setShowPopup(!showPopup)}
                   className="mt-4 ml-4 bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-                  download
                 >
                   Download Guide
-                </Link>
-              </>
-            )}
-            {isConverted && (
-              <button className="mt-4 ml-4 bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
-                Save
-              </button>
+                </button>
+                {showPopup && (
+                  <div
+                    className="fixed inset-0 1 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full"
+                    id="my-modal"
+                  >
+                    <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+                      <div className="mt-3 text-center">
+                        <h3 className="text-lg leading-6 font-medium text-gray-900">
+                          Download Options
+                        </h3>
+                        <div className="mt-2 px-7 py-3">
+                          <p className="text-sm text-gray-500">
+                            Choose a format to download:
+                          </p>
+                        </div>
+                        <div className="items-center px-4 py-3">
+                          <button
+                            onClick={downloadPDF}
+                            className="px-4 py-2 bg-blue-500 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-300"
+                          >
+                            PDF
+                          </button>
+                          <button
+                            onClick={downloadHTML}
+                            className="mt-3 px-4 py-2 bg-green-500 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-300"
+                          >
+                            HTML
+                          </button>
+                          <button
+                            onClick={() => setShowPopup(false)}
+                            className="absolute top-0 right-0 mt-4 mr-5 text-gray-400 hover:text-gray-600"
+                          >
+                            <span className="text-2xl">&times;</span>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+                <button className="mt-4 ml-4 bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+                  Save
+                </button>
+              </div>
             )}
           </div>
         </div>

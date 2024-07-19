@@ -3,6 +3,7 @@ import Navbar from "../Components/Navbar";
 import Footer from "../Components/Footer";
 
 function Guides() {
+  const [showPopup, setShowPopup] = useState(false);
   const [guides, setGuides] = useState([
     {
       id: 1,
@@ -17,6 +18,20 @@ function Guides() {
       conversionDate: "2023-07-15",
     },
   ]);
+
+  const downloadPDF = () => {
+    console.log("Download as PDF");
+    setShowPopup(false);
+  };
+
+  const downloadHTML = () => {
+    console.log("Download as HTML");
+    setShowPopup(false);
+  };
+
+  const handleConvert = (guide) => {
+    navigate("/converter", { guide: { selectedGuide: guide } });
+  };
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-100">
@@ -64,10 +79,16 @@ function Guides() {
                   <td className="px-6 py-4 whitespace-nowrap text-center">
                     <div className="flex flex-col items-center">
                       <div className="flex space-x-2">
-                        <button className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
+                        <button
+                          onClick={handleConvert}
+                          className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded"
+                        >
                           View
                         </button>
-                        <button className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
+                        <button
+                          onClick={() => setShowPopup(!showPopup)}
+                          className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded"
+                        >
                           Download
                         </button>
                       </div>
@@ -77,6 +98,45 @@ function Guides() {
               ))}
             </tbody>
           </table>
+          {showPopup && (
+            <div
+              className="fixed inset-0 1 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full"
+              id="my-modal"
+            >
+              <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+                <div className="mt-3 text-center">
+                  <h3 className="text-lg leading-6 font-medium text-gray-900">
+                    Download Options
+                  </h3>
+                  <div className="mt-2 px-7 py-3">
+                    <p className="text-sm text-gray-500">
+                      Choose a format to download:
+                    </p>
+                  </div>
+                  <div className="items-center px-4 py-3">
+                    <button
+                      onClick={downloadPDF}
+                      className="px-4 py-2 bg-blue-500 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-300"
+                    >
+                      PDF
+                    </button>
+                    <button
+                      onClick={downloadHTML}
+                      className="mt-3 px-4 py-2 bg-green-500 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-300"
+                    >
+                      HTML
+                    </button>
+                    <button
+                      onClick={() => setShowPopup(false)}
+                      className="absolute top-0 right-0 mt-4 mr-5 text-gray-400 hover:text-gray-600"
+                    >
+                      <span className="text-2xl">&times;</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
       <Footer />
