@@ -1,8 +1,16 @@
 import React from "react";
 import Navbar from "../Components/Navbar";
 import Footer from "../Components/Footer";
+import { useState, useEffect } from "react";
 
 function Login() {
+  const [loading, setLoading] = useState(false);
+  useEffect(() => {
+    setLoading(true);
+    setTimeout(() => {
+      setLoading(false);
+    }, 3000);
+  }, []);
   return (
     <div className="flex flex-col min-h-screen bg-gray-100">
       <Navbar />
