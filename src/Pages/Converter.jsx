@@ -76,39 +76,50 @@ function Converter() {
     }
   };
 
-  const generateMockGuide = (fileName) => {
+  function generateMockGuide(fileName) {
     return `
-      <h1>Step-by-Step Guide: ${fileName}</h1>
-      <h2>Introduction</h2>
-      <p>This guide is based on the presentation "${fileName}". Follow these steps to understand the key points of the presentation.</p>
-      <h2>Step 1: Overview</h2>
-      <p>Begin by reviewing the title slide and agenda to get an overview of the presentation's main topics.</p>
-      <h2>Step 2: Key Concepts</h2>
-      <p>Identify and list the main concepts introduced in the presentation. These are typically found in section headers or bold text.</p>
-      <h2>Step 3: Details and Examples</h2>
-      <p>For each key concept, note down supporting details and examples provided in the slides.</p>
-      <h2>Step 4: Visual Aids</h2>
-      <p>Pay attention to any charts, graphs, or images in the presentation. Describe their relevance to the topic.</p>
-      <h2>Step 5: Conclusion</h2>
-      <p>Summarize the main takeaways from the presentation and any call-to-action points mentioned.</p>
-      <h2>Next Steps</h2>
-      <p>Review this guide alongside the original presentation for a comprehensive understanding of the material.</p>
-    `;
-  };
-
+      <h1 style="font-size: 2em; font-weight: bold; font-family: Arial, sans-serif;">Step-by-Step Guide: ${fileName}</h1>
+      <h2 style="font-size: 1.5em; font-weight: bold; font-family: Arial, sans-serif;">Introduction</h2>
+      <p style="font-size: 1em; font-family: Arial, sans-serif;">This guide is based on the presentation "${fileName}". Follow these steps to understand the key points of the presentation.</p>
+      <h2 style="font-size: 1.5em; font-weight: bold; font-family: Arial, sans-serif;">Step 1: Overview</h2>
+      <p style="font-size: 1em; font-family: Arial, sans-serif;">Begin by reviewing the title slide and agenda to get an overview of the presentation's main topics.</p>
+      <img src="https://via.placeholder.com/500" alt="Example Image" style="display: block; margin: 10px auto; max-width: 100%; height: auto;">
+      <h2 style="font-size: 1.5em; font-weight: bold; font-family: Arial, sans-serif;">Step 2: Key Concepts</h2>
+      <p style="font-size: 1em; font-family: Arial, sans-serif;">Identify and list the main concepts introduced in the presentation. These are typically found in section headers or bold text.</p>
+      <h2 style="font-size: 1.5em; font-weight: bold; font-family: Arial, sans-serif;">Step 3: Details and Examples</h2>
+      <p style="font-size: 1em; font-family: Arial, sans-serif;">For each key concept, note down supporting details and examples provided in the slides.</p>
+      <img src="https://via.placeholder.com/500" alt="Example Image" style="display: block; margin: 10px auto; max-width: 100%; height: auto;">
+      <h2 style="font-size: 1.5em; font-weight: bold; font-family: Arial, sans-serif;">Step 4: Visual Aids</h2>
+      <p style="font-size: 1em; font-family: Arial, sans-serif;">Pay attention to any charts, graphs, or images in the presentation. Describe their relevance to the topic.</p>
+      <h2 style="font-size: 1.5em; font-weight: bold; font-family: Arial, sans-serif;">Step 5: Conclusion</h2>
+      <p style="font-size: 1em; font-family: Arial, sans-serif;">Summarize the main takeaways from the presentation and any call-to-action points mentioned.</p>
+      <h2 style="font-size: 1.5em; font-weight: bold; font-family: Arial, sans-serif;">Next Steps</h2>
+      <p style="font-size: 1em; font-family: Arial, sans-serif;">Review this guide alongside the original presentation for a comprehensive understanding of the material.</p>
+    `.replace(/\n\s+/g, ""); // Remove unnecessary line breaks
+  }
   const handleGuideChange = (content) => {
     setGuide(content);
   };
 
   const handleCopyToClipboard = () => {
-    const textContent = guide.replace(/<[^>]+>/g, "\n").trim();
-    navigator.clipboard
-      .writeText(textContent)
-      .then(() => alert("Guide content copied to clipboard!"))
-      .catch((err) => {
-        console.error("Error copying to clipboard:", err);
-        alert("Failed to copy guide content to clipboard.");
-      });
+    const el = document.createElement("div");
+    el.innerHTML = guide;
+    document.body.appendChild(el);
+
+    const range = document.createRange();
+    range.selectNodeContents(el);
+    const selection = window.getSelection();
+    selection.removeAllRanges();
+    selection.addRange(range);
+
+    try {
+      document.execCommand("copy");
+      alert("Guide content copied to clipboard!");
+    } catch (err) {
+      console.error("Failed to copy: ", err);
+    }
+
+    document.body.removeChild(el);
   };
 
   const modules = {
@@ -122,28 +133,6 @@ function Converter() {
       ["link", "image"],
       ["clean"],
     ],
-  };
-
-  const imageHandler = () => {
-    const input = document.createElement("input");
-    input.setAttribute("type", "file");
-    input.setAttribute("accept", "image/*");
-    input.click();
-
-    input.onchange = () => {
-      const file = input.files[0];
-      if (file) {
-        const reader = new FileReader();
-
-        reader.onload = () => {
-          const quill = quillRef.current.getEditor();
-          const range = quill.getSelection(true);
-          quill.insertEmbed(range.index, "image", reader.result);
-        };
-
-        reader.readAsDataURL(file);
-      }
-    };
   };
 
   const downloadPDF = () => {
@@ -187,7 +176,7 @@ function Converter() {
           </div>
         )}
         {!loading && (
-          <div className="overflow-auto">
+          <div className="overflow-hidden">
             <div className="container mx-auto px-4 py-8">
               <h1 className="text-3xl font-bold mb-8 text-center">
                 PPT to Step-by-Step Guide Converter

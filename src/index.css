@@ -23,3 +23,29 @@
 .animate-slide-in-out {
   animation: slideIn 0.5s forwards, slideOut 0.5s 2.5s forwards;
 }
+.ql-editor {
+  font-size: 18px;
+  line-height: 1.6;
+}
+.ql-editor h1 {
+  font-size: 32px;
+  line-height: 1.2;
+  margin-top: 20px;
+  margin-bottom: 10px;
+}
+.ql-editor h2 {
+  font-size: 28px;
+  line-height: 1.2;
+  margin-top: 18px;
+  margin-bottom: 9px;
+}
+.ql-editor p {
+  margin-bottom: 15px;
+}
+.ql-editor img {
+  max-width: 100%;
+  max-height: 500px;
+  height: auto;
+  margin: 10px 0;
+  object-fit: contain;
+}
